@@ -10,6 +10,7 @@ import StrategyInteractive from './Components/Statergy'
 import ContentAnalyzer from './Components/content_analyser'
 import SettingsPage from './Components/Setting'
 import AboutUsMinimal from './Components/About_us'
+import CompetitorTracker from './Components/competitive_tracker'
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,6 +41,8 @@ function App() {
         return <Login onLogin={handleLogin} onBack={() => setCurrentView('dashboard')} />;
       case 'signup':
         return <Signup onSignup={handleLogin} onBack={() => setCurrentView('dashboard')} />;
+      case 'competitor':
+        return <CompetitorTracker />
       default:
         return <DashboardBW />;
     }

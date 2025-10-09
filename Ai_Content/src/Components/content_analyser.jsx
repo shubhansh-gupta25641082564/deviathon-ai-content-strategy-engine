@@ -5,50 +5,82 @@ const ContentAnalyzer = () => {
 
   const handleContentChange = (e) => setContent(e.target.value);
 
-  // % heights here are relative to the container box ("parent" div)
   return (
     <div
       style={{
-        background: "#f6f6f9",
+        background: "linear-gradient(to bottom right, #181B23, #000000, #000000)",
         minHeight: "100vh",
         width: "100vw",
         paddingTop: "56px",
       }}
     >
-      <h2
-        style={{
-          color: "#181818",
-          marginBottom: "50px",
-          fontWeight: "700",
-          letterSpacing: "1px",
-          fontSize: "2.1rem",
-          textShadow: "0 2px 10px rgba(100,100,100,0.07)",
-          lineHeight: "1",
-          textAlign: "center"
-        }}
-      >
-        Content Analyzer
-      </h2>
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          minHeight: "calc(100vh - 240px)",
+          maxWidth: "1152px",
+          margin: "0 auto",
+          padding: "0 40px",
+          marginBottom: "48px"
         }}
       >
         <div
           style={{
-            background: "#fff",
-            borderRadius: "26px",
-            boxShadow: "0 8px 40px 12px rgba(50,50,80,0.17)",
-            padding: "111px 40px 2px",
+            background: "#191c27",
+            borderRadius: "0 0 24px 24px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+            padding: "32px 40px",
+            display: "flex",
+            alignItems: "center",
+            gap: "24px"
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              width: "64px",
+              height: "64px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
+            }}
+          >
+            <span style={{ fontSize: "36px", fontWeight: "800", color: "#191c27" }}>CA</span>
+          </div>
+          <h2
+            style={{
+              color: "#fff",
+              margin: "0",
+              fontWeight: "800",
+              letterSpacing: "-0.5px",
+              fontSize: "2.25rem",
+              lineHeight: "1"
+            }}
+          >
+            Content Analyzer
+          </h2>
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          padding: "0 40px 96px",
+        }}
+      >
+        <div
+          style={{
+            background: "#22252e",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            padding: "64px 40px 40px",
             width: "100%",
-            maxWidth: "650px",
+            maxWidth: "700px",
             minHeight: "300px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "84px"
+            gap: "48px"
           }}
         >
           <textarea
@@ -56,63 +88,61 @@ const ContentAnalyzer = () => {
             onChange={handleContentChange}
             placeholder="Paste content or link"
             style={{
-              height: "45%", // about 38% of parent box height
+              height: "200px",
               width: "100%",
               minHeight: "80px",
               resize: "vertical",
-              borderRadius: "18px",
-              border: "1.5px solid #ececec",
+              borderRadius: "12px",
+              border: "1.5px solid #3a3f4d",
               padding: "19px",
               fontSize: "1.13rem",
-              background: "#fafafd",
-              color: "#222",
+              background: "#181d23",
+              color: "#fff",
               outline: "none",
-              boxShadow: "0 2px 10px rgba(200,200,200,0.08)",
-              marginBottom: "18px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
               transition: "border 0.23s"
             }}
           />
           <div style={{
             display: "flex",
-            gap: "24px",
+            gap: "16px",
             width: "100%",
-            height: "17%", // buttons row takes about 17% of parent box height
             alignItems: "stretch"
           }}>
             <button
               style={{
                 flex: 1,
-                background: "#181818",
-                color: "#fff",
-                borderRadius: "15px",
+                background: "#fff",
+                color: "#000",
+                borderRadius: "12px",
                 border: "none",
-                height: "100%", // fills parent
-                fontWeight: "600",
+                height: "56px",
+                fontWeight: "700",
                 fontSize: "1.09rem",
                 cursor: "pointer",
-                letterSpacing: "0.4px",
-                boxShadow: "0 2px 8px rgba(40,40,40,0.07)",
-                transition: "background 0.17s",
+                letterSpacing: "0.2px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                transition: "background 0.2s",
                 padding: 0
               }}
               onClick={() => alert("Analyze clicked!")}
             >
-              Analyze
+              ✦ Analyze
             </button>
             <button
               style={{
                 flex: 1,
-                background: "#fff",
-                color: "#181818",
-                borderRadius: "15px",
-                border: "2px solid #181818",
-                height: "100%", // fills parent
-                fontWeight: "600",
+                background: "#22252e",
+                color: "#fff",
+                borderRadius: "12px",
+                border: "2px solid #fff",
+                height: "56px",
+                fontWeight: "700",
                 fontSize: "1.09rem",
                 cursor: "pointer",
-                letterSpacing: "0.4px",
-                boxShadow: "0 2px 8px rgba(180,180,180,0.04)",
-                transition: "background 0.17s, color 0.17s",
+                letterSpacing: "0.2px",
+                boxShadow: "0 2px 8px rgba(255,255,255,0.1)",
+                transition: "background 0.2s, color 0.2s",
                 padding: 0
               }}
               onClick={() => alert("Generate using AI clicked!")}
