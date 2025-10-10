@@ -14,6 +14,7 @@ import Footer from './Components/footer';
 import TrendDiscovery from './Components/TrendDiscovery';
 import Login from './Components/Login';
 import Signup from './Components/Signup';
+import DashboardComponent from './Components/dashboard_component_01';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -53,7 +54,7 @@ function App() {
     setIsAuthenticated(true);
     setCurrentUser(user);
     setShowLogin(false);
-    setCurrentView('dashboard');
+    setCurrentView('maindashboard'); // Make sure this is set correctly
   };
 
   // Handle successful signup
@@ -61,58 +62,130 @@ function App() {
     setIsAuthenticated(true);
     setCurrentUser(user);
     setShowSignup(false);
-    setCurrentView('dashboard');
+    setCurrentView('maindashboard'); // Make sure this is set correctly
   };
 
   // Render current view
   const renderCurrentView = () => {
-    if (showLogin) {
-      return <Login onLoginSuccess={handleLoginSuccess} onClose={() => setShowLogin(false)} />;
-    }
-    if (showSignup) {
-      return <Signup onSignupSuccess={handleSignupSuccess} onClose={() => setShowSignup(false)} />;
+    let mainContent;
+
+    // If user is not authenticated, show DashboardComponent
+    if (!isAuthenticated) {
+      return (
+        <>
+          {showLogin && (
+            <Login
+              onLoginSuccess={handleLoginSuccess}
+              onClose={() => setShowLogin(false)}
+              onShowSignup={() => {
+                setShowLogin(false);
+                setShowSignup(true);
+              }}
+            />
+          )}
+          {showSignup && (
+            <Signup
+              onSignupSuccess={handleSignupSuccess}
+              onClose={() => setShowSignup(false)}
+              onShowLogin={() => {
+                setShowSignup(false);
+                setShowLogin(true);
+              }}
+            />
+          )}
+          <DashboardComponent
+            onShowLogin={handleShowLogin}
+            onShowSignup={handleShowSignup}
+          />
+        </>
+      );
     }
 
+    // If user is authenticated, show the main application views
     switch (currentView) {
-      case 'dashboard':
-        return (
+      case 'maindashboard':
+        mainContent = (
           <>
             <TrendDiscovery />
             <DashboardBW />
           </>
         );
+        break;
+      case 'dashboard':
+        mainContent = (
+          <>
+            <TrendDiscovery />
+            <DashboardBW />
+          </>
+        );
+        break;
       case 'content':
-        return <ContentAnalyzer />;
+        mainContent = <ContentAnalyzer />;
+        break;
       case 'strategy':
-        return <StrategyInteractive />;
+        mainContent = <StrategyInteractive />;
+        break;
       case 'competitor':
-        return <CompetitorTracker />;
+        mainContent = <CompetitorTracker />;
+        break;
       case 'about':
-        return <AboutUsMinimal />;
+        mainContent = <AboutUsMinimal />;
+        break;
       case 'settings':
-        return <SettingsPage />;
+        mainContent = <SettingsPage />;
+        break;
       default:
-        return (
+        mainContent = (
           <>
             <TrendDiscovery />
             <DashboardBW />
           </>
         );
     }
+
+    return (
+      <>
+        {showLogin && (
+          <Login
+            onLoginSuccess={handleLoginSuccess}
+            onClose={() => setShowLogin(false)}
+            onShowSignup={() => {
+              setShowLogin(false);
+              setShowSignup(true);
+            }}
+          />
+        )}
+        {showSignup && (
+          <Signup
+            onSignupSuccess={handleSignupSuccess}
+            onClose={() => setShowSignup(false)}
+            onShowLogin={() => {
+              setShowSignup(false);
+              setShowLogin(true);
+            }}
+          />
+        )}
+        {mainContent}
+      </>
+    );
   };
 
   return (
     <>
-      <Navbar 
-        isAuthenticated={isAuthenticated}
-        currentUser={currentUser}
-        onLogout={handleLogout}
-        onShowLogin={handleShowLogin}
-        onShowSignup={handleShowSignup}
-        onNavigate={handleNavigate}
-      />
+      {/* Only show Navbar for authenticated users */}
+      {isAuthenticated && (
+        <Navbar
+          isAuthenticated={isAuthenticated}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onShowLogin={handleShowLogin}
+          onShowSignup={handleShowSignup}
+          onNavigate={handleNavigate}
+        />
+      )}
       {renderCurrentView()}
-      <Footer />
+      {/* Only show Footer for authenticated users */}
+      {isAuthenticated && <Footer />}
     </>
   )
 }

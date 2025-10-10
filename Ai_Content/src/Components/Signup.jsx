@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { register } from '../services/auth.service';
-import { useNavigate } from 'react-router-dom';
 
-const Signup = ({ onBack }) => {
-  const navigate = useNavigate();
+// Mock register function
+const mockRegister = async (username, email, password) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Simulate successful registration
+      const user = {
+        id: Date.now(),
+        username,
+        email,
+        createdAt: new Date().toISOString()
+      };
+      resolve(user);
+    }, 1000);
+  });
+};
+
+const Signup = ({ onSignupSuccess, onClose, onShowLogin }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -28,12 +41,17 @@ const Signup = ({ onBack }) => {
       return;
     }
 
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const { username, email, password } = formData;
-      await register(username, email, password);
-      navigate('/dashboard');
+      // Use mock register instead of API call
+      const user = await mockRegister(formData.fullName, formData.email, formData.password);
+      onSignupSuccess(user);
     } catch (err) {
       setError(err.message || 'An error occurred during registration');
     } finally {
@@ -50,18 +68,18 @@ const Signup = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white font-sans">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
       {/* Signup Card */}
       <div
         className={`bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-10 w-full max-w-md shadow-xl transform transition-all duration-700 relative ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
       >
-        {/* Back button */}
+        {/* Close button */}
         <button
-          onClick={onBack}
-          className="absolute top-4 left-4 text-white hover:text-gray-300 text-2xl font-bold"
+          onClick={onClose}
+          className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl font-bold"
         >
-          ←
+          ×
         </button>
         <h2 className="text-3xl font-bold text-center mb-8 tracking-wide">
           Create Your Account
@@ -191,7 +209,7 @@ const Signup = ({ onBack }) => {
           <p>
             Already have an account?{" "}
             <button
-              onClick={() => navigate('/login')}
+              onClick={onShowLogin}
               className="text-white underline hover:text-gray-300"
             >
               Login

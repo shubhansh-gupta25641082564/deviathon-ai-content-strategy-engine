@@ -1,1 +1,38 @@
 @import "tailwindcss";
+/* Add this to your main CSS file */
+:root {
+  --color-primary: #094074;
+  --color-secondary: #3C6997;
+  --color-accent: #5ADBFF;
+  --color-warning: #FFDD4A;
+  --color-orange: #FE9000;
+}
+
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-orange { background-color: var(--color-orange); }
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.text-warning { color: var(--color-warning); }
+.text-orange { color: var(--color-orange); }
+
+.border-primary { border-color: var(--color-primary); }
+.border-accent { border-color: var(--color-accent); }
+.border-warning { border-color: var(--color-warning); }
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-primary) 100%);
+}
+
+.bg-gradient-accent {
+  background: linear-gradient(45deg, var(--color-accent) 0%, var(--color-warning) 100%);
+}

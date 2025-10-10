@@ -1,4 +1,5 @@
 import React from 'react';
+import cclogo from '../assets/logos/cc_logo.png';
 
 const Footer = () => {
   return (
@@ -8,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-2xl font-bold mb-4">Craft AI</h3>
+            <h3 className="text-2xl font-bold mb-4">Content Craft AI</h3>
             <p className="text-gray-400 mb-4">
               Empowering creativity through artificial intelligence. Create, innovate, and transform your content.
             </p>
@@ -45,18 +46,26 @@ const Footer = () => {
           <div>
             <h4 className="text-xl font-semibold mb-4">Contact Us</h4>
             <ul className="space-y-2 text-gray-400">
-              <li>Email: info@craftai.com</li>
+              <li>Email: info@contentcraftai.com</li>
               <li>Phone: +1 (555) 123-4567</li>
-              <li>Support: support@craftai.com</li>
+              <li>Support: support@contentcraftai.com</li>
             </ul>
           </div>
 
           {/* Newsletter Signup */}
           <div>
             <h4 className="text-xl font-semibold mb-4">Stay Updated</h4>
-            <div className="flex flex-col space-y-3">
-                <img src='src\assets\Screenshot 2025-10-09 161336.png'></img>
-            
+            <div className="flex flex-col space-y-4">
+              <div className="bg-white p-3 rounded-lg inline-flex justify-center">
+                <img 
+                  src={cclogo}
+                  alt="QR Code - Scan to download our app"
+                  className="w-32 h-32 object-contain"
+                />
+              </div>
+              <p className="text-gray-400 text-sm text-center">
+                Scan to download our mobile app
+              </p>
             </div>
           </div>
         </div>
@@ -66,7 +75,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             {/* Copyright */}
             <div className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2025 Craft AI. All rights reserved.
+              © 2025 Content Craft AI. All rights reserved.
             </div>
 
             {/* Social Links */}

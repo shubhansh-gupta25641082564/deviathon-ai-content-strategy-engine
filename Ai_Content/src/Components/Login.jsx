@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../services/auth.service';
 
-const Login = ({ onBack }) => {
-  const navigate = useNavigate();
+// Mock login function
+const mockLogin = async (email, password) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Simulate successful login
+      const user = {
+        id: Date.now(),
+        username: email.split('@')[0],
+        email,
+        createdAt: new Date().toISOString()
+      };
+      resolve(user);
+    }, 1000);
+  });
+};
+
+const Login = ({ onLoginSuccess, onClose, onShowSignup }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -18,9 +31,9 @@ const Login = ({ onBack }) => {
     setIsLoading(true);
 
     try {
-      const { email, password } = formData;
-      const response = await login(email, password);
-      navigate('/dashboard');
+      // Use mock login instead of API call
+      const response = await mockLogin(formData.email, formData.password);
+      onLoginSuccess(response);
     } catch (err) {
       setError(err.message || 'An error occurred during login');
     } finally {
@@ -37,14 +50,14 @@ const Login = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-gray-800">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
       <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-10 w-full max-w-md shadow-2xl relative">
-        {/* Back button */}
+        {/* Close button */}
         <button
-          onClick={onBack}
-          className="absolute top-4 left-4 text-white hover:text-gray-300 text-2xl font-bold"
+          onClick={onClose}
+          className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl font-bold"
         >
-          
+          ×
         </button>
         <h2 className="text-3xl font-bold text-center mb-8 text-white tracking-wide">
           Welcome Back
@@ -118,7 +131,7 @@ const Login = ({ onBack }) => {
         <div className="mt-6 text-center text-gray-300">
           <p>
             Don't have an account?{' '}
-            <button onClick={() => navigate('/signup')} className="text-white hover:underline">
+            <button onClick={onShowSignup} className="text-white hover:underline">
               Sign Up
             </button>
           </p>
