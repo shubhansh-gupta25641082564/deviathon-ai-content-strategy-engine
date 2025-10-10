@@ -29,22 +29,35 @@ function getDynamicTrends(page = 1) {
     });
 }
 
+import { getRelevantCreators, suggestCreatorsForContent } from './creators_data.js';
+
 export async function getGoogleTrends(page = 1) {
     try {
         const trends = getDynamicTrends(page);
-        return trends.map(trend => ({
-            hashtag: trend.hashtag,
-            headline: `${trend.keyword.charAt(0).toUpperCase() + trend.keyword.slice(1)} Trends`,
-            music: "Tech Trends Beat",
-            content: `${trend.description}. Growing at ${trend.growth}!`
-        }));
+        return trends.map(trend => {
+            const creators = suggestCreatorsForContent(trend.keyword, 'Trends');
+            
+            return {
+                hashtag: trend.hashtag,
+                headline: `${trend.keyword.charAt(0).toUpperCase() + trend.keyword.slice(1)} Trends`,
+                music: "Tech Trends Beat",
+                content: `${trend.description}. Growing at ${trend.growth}!`,
+                creators: creators,
+                trendScore: trend.score,
+                growth: trend.growth
+            };
+        });
     } catch (error) {
         console.error('Error getting trends:', error);
+        const fallbackCreators = getRelevantCreators('Trends', 'tech', 2);
         return [{
             hashtag: "#TechTrends",
             headline: "Tech Trend Analysis",
             music: "Tech Trends Beat",
-            content: "Analyze and present emerging technology trends"
+            content: "Analyze and present emerging technology trends",
+            creators: fallbackCreators,
+            trendScore: 75,
+            growth: "+25%"
         }];
     }
 }

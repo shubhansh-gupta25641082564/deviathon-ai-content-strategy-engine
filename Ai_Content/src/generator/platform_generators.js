@@ -85,19 +85,25 @@ export const generatePlatformContent = async (platform, page = 1) => {
                 break;
 
             case 'Instagram':
-                // For Instagram, we generate creative content ideas
-                result = Array(ITEMS_PER_PAGE).fill(null).map((_, i) => ({
-                    hashtag: "#TechInsta",
-                    headline: `Tech Innovation Showcase #${i + 1}`,
-                    music: "Digital Innovation Beat",
-                    content: [
-                        "Create a tech transformation reel showing before/after",
-                        "Share a step-by-step tech tip carousel",
-                        "Demo an impressive tech feature in action",
-                        "Show your tech workspace setup and optimization",
-                        "Present a life-changing tech hack"
-                    ][i]
-                }));
+                // For Instagram, we generate creative content ideas with creators
+                const { getRelevantCreators } = await import('./creators_data.js');
+                result = Array(ITEMS_PER_PAGE).fill(null).map((_, i) => {
+                    const creators = getRelevantCreators('Instagram', 'tech', 2);
+                    
+                    return {
+                        hashtag: "#TechInsta",
+                        headline: `Tech Innovation Showcase #${i + 1}`,
+                        music: "Digital Innovation Beat",
+                        content: [
+                            "Create a tech transformation reel showing before/after",
+                            "Share a step-by-step tech tip carousel",
+                            "Demo an impressive tech feature in action",
+                            "Show your tech workspace setup and optimization",
+                            "Present a life-changing tech hack"
+                        ][i],
+                        creators: creators
+                    };
+                });
                 break;
 
             default:

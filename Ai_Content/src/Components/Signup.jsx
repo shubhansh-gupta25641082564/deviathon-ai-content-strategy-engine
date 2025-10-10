@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { register } from '../services/auth.service';
+import { useNavigate } from 'react-router-dom';
 
-const Signup = ({ onBack, onLogin }) => {
+const Signup = ({ onBack }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -9,22 +12,33 @@ const Signup = ({ onBack, onLogin }) => {
   });
 
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Animation trigger on load
     setTimeout(() => setLoaded(true), 100);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Signup attempt:", formData);
-    
-    // Mock successful signup and login
-    const userData = {
-      username: formData.fullName || formData.email.split('@')[0] || 'User',
-      email: formData.email
-    };
-    onLogin(userData);
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { username, email, password } = formData;
+      await register(username, email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -39,9 +53,8 @@ const Signup = ({ onBack, onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white font-sans">
       {/* Signup Card */}
       <div
-        className={`bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-10 w-full max-w-md shadow-xl transform transition-all duration-700 relative ${
-          loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+        className={`bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-10 w-full max-w-md shadow-xl transform transition-all duration-700 relative ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
       >
         {/* Back button */}
         <button
@@ -152,21 +165,37 @@ const Signup = ({ onBack, onLogin }) => {
           </div>
 
           {/* Submit Button */}
+          {error && (
+            <div className="text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-white text-black font-semibold py-3 px-8 rounded-lg hover:bg-gray-200 active:scale-95 transition duration-300 shadow-md"
+            disabled={isLoading}
+            className="w-full bg-white text-black font-semibold py-3 px-8 rounded-lg hover:bg-gray-200 active:scale-95 transition duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                Creating Account...
+              </div>
+            ) : (
+              'Sign Up'
+            )}
           </button>
         </form>
 
-        {/* Footer */}
         <div className="mt-8 text-center text-gray-400">
           <p>
             Already have an account?{" "}
-            <a href="#" className="text-white underline hover:text-gray-300">
+            <button
+              onClick={() => navigate('/login')}
+              className="text-white underline hover:text-gray-300"
+            >
               Login
-            </a>
+            </button>
           </p>
         </div>
       </div>

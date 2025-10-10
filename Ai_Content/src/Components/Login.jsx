@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../services/auth.service';
 
-const Login = ({ onBack, onLogin }) => {
+const Login = ({ onBack }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', formData);
-    
-    // Mock successful login
-    const userData = {
-      username: formData.email.split('@')[0] || 'User',
-      email: formData.email
-    };
-    onLogin(userData);
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const { email, password } = formData;
+      const response = await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'An error occurred during login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -34,7 +44,7 @@ const Login = ({ onBack, onLogin }) => {
           onClick={onBack}
           className="absolute top-4 left-4 text-white hover:text-gray-300 text-2xl font-bold"
         >
-          ←
+          
         </button>
         <h2 className="text-3xl font-bold text-center mb-8 text-white tracking-wide">
           Welcome Back
@@ -83,20 +93,34 @@ const Login = ({ onBack, onLogin }) => {
             </a>
           </div>
 
+          {error && (
+            <div className="text-red-500 text-sm mt-2 text-center">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-white text-black font-semibold py-3 px-8 rounded-lg hover:bg-gray-200 transition duration-300"
+            disabled={isLoading}
+            className="w-full bg-white text-black font-semibold py-3 px-8 rounded-lg hover:bg-gray-200 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                Logging in...
+              </div>
+            ) : (
+              'Login'
+            )}
           </button>
         </form>
 
         <div className="mt-6 text-center text-gray-300">
           <p>
-            Don’t have an account?{' '}
-            <a href="#" className="text-white hover:underline">
+            Don't have an account?{' '}
+            <button onClick={() => navigate('/signup')} className="text-white hover:underline">
               Sign Up
-            </a>
+            </button>
           </p>
         </div>
       </div>

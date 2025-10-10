@@ -45,7 +45,7 @@ export default function CompetitorTracker() {
       {/* Header */}
       <div className="w-full max-w-6xl mx-auto px-10 pt-8 pb-8 flex items-center bg-[#191c27] rounded-b-3xl shadow-lg mb-12">
         <div className="bg-white rounded-xl flex items-center justify-center w-16 h-16 shadow-lg mr-6">
-          <span className="text-4xl font-extrabold text-[#191c27]">YT</span>
+          <span className="text-4xl font-extrabold text-[#191c27]">CT</span>
         </div>
         <h2 className="flex-1 text-left text-4xl font-extrabold text-white tracking-tight">Competitor Tracker </h2>
       </div>
