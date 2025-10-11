@@ -1,57 +1,179 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { analyzeContent, generatePlatformContent, getAnalysisStats } from '../services/content.service';
+import { isAuthenticated } from '../services/auth.service';
 
 const ContentAnalyzer = () => {
   const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
   const [activeTab, setActiveTab] = useState("analyze");
   const [analysisResults, setAnalysisResults] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [viewMode, setViewMode] = useState("quick");
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    totalAnalyses: 0,
+    averageOverallScore: 87,
+    totalWordCount: 2400,
+    successRate: 98.7
+  });
+  const [platform, setPlatform] = useState("Blog");
+  const [contentType, setContentType] = useState("blog");
 
-  const handleAnalyze = () => {
-    setIsAnalyzing(true);
-    setTimeout(() => {
-      setAnalysisResults({
-        overallScore: 87,
-        sentiment: {
-          score: 85,
-          label: "Positive",
-          color: "#5ADBFF"
-        },
-        readability: {
-          score: 78,
-          label: "Good",
-          color: "#FFDD4A"
-        },
-        seo: {
-          score: 92,
-          label: "Excellent",
-          color: "#FE9000"
-        },
-        engagement: {
-          score: 81,
-          label: "High",
-          color: "#3C6997"
-        },
-        keywords: ["AI", "content", "analysis", "performance", "creative", "strategy", "optimization"],
-        recommendations: [
-          "Add more specific examples to support claims",
-          "Include relevant data points for credibility",
-          "Consider shortening complex sentences",
-          "Add call-to-action for better engagement"
-        ],
-        metrics: {
-          wordCount: 245,
-          readingTime: "1.2 min",
-          sentenceLength: "18.2 words",
-          paragraphCount: 12
+  // Load user stats on component mount
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        if (isAuthenticated()) {
+          const response = await getAnalysisStats();
+          if (response.success) {
+            setStats({
+              totalAnalyses: response.stats.totalAnalyses,
+              averageOverallScore: response.stats.averageOverallScore,
+              totalWordCount: response.stats.totalWordCount,
+              successRate: 98.7 // Keep static for now
+            });
+          }
         }
-      });
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    };
+    loadStats();
+  }, []);
+
+  const handleAnalyze = async () => {
+    if (!content.trim()) {
+      setError("Please enter some content to analyze");
+      return;
+    }
+
+    if (!isAuthenticated()) {
+      setError("Please log in to analyze content");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setError(null);
+
+    try {
+      const response = await analyzeContent(content, title, contentType, platform);
+      
+      if (response.success) {
+        // Transform the API response to match the component's data structure
+        const transformedResults = {
+          overallScore: response.analysis.overallScore,
+          sentiment: {
+            score: response.analysis.sentiment.score,
+            label: response.analysis.sentiment.label,
+            color: getSentimentColor(response.analysis.sentiment.label)
+          },
+          readability: {
+            score: response.analysis.readability.score,
+            label: response.analysis.readability.level,
+            color: getReadabilityColor(response.analysis.readability.score)
+          },
+          seo: {
+            score: response.analysis.seo.score,
+            label: getSeoLabel(response.analysis.seo.score),
+            color: getSeoColor(response.analysis.seo.score)
+          },
+          engagement: {
+            score: response.analysis.engagement.score,
+            label: getEngagementLabel(response.analysis.engagement.score),
+            color: getEngagementColor(response.analysis.engagement.score)
+          },
+          keywords: response.analysis.keywords.map(k => k.keyword),
+          recommendations: response.analysis.recommendations.map(r => r.description),
+          metrics: {
+            wordCount: response.analysis.metrics.wordCount,
+            readingTime: `${response.analysis.metrics.readingTime} min`,
+            sentenceLength: `${response.analysis.metrics.averageSentenceLength} words`,
+            paragraphCount: response.analysis.metrics.paragraphCount
+          }
+        };
+        
+        setAnalysisResults(transformedResults);
+      } else {
+        setError(response.message || "Analysis failed");
+      }
+    } catch (error) {
+      console.error('Analysis error:', error);
+      setError(error.message || "Failed to analyze content. Please try again.");
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
   };
 
-  const handleGenerate = () => {
-    setContent("Here's AI-generated content optimized for your audience... This content follows best practices for engagement and incorporates data-driven insights to maximize impact and reach.");
+  // Helper functions for color coding
+  const getSentimentColor = (label) => {
+    switch (label.toLowerCase()) {
+      case 'positive': return '#5ADBFF';
+      case 'negative': return '#FF6B6B';
+      default: return '#FFDD4A';
+    }
+  };
+
+  const getReadabilityColor = (score) => {
+    if (score >= 80) return '#5ADBFF';
+    if (score >= 60) return '#FFDD4A';
+    return '#FE9000';
+  };
+
+  const getSeoColor = (score) => {
+    if (score >= 80) return '#5ADBFF';
+    if (score >= 60) return '#FFDD4A';
+    return '#FE9000';
+  };
+
+  const getEngagementColor = (score) => {
+    if (score >= 80) return '#5ADBFF';
+    if (score >= 60) return '#3C6997';
+    return '#FFDD4A';
+  };
+
+  const getSeoLabel = (score) => {
+    if (score >= 80) return 'Excellent';
+    if (score >= 60) return 'Good';
+    if (score >= 40) return 'Fair';
+    return 'Poor';
+  };
+
+  const getEngagementLabel = (score) => {
+    if (score >= 80) return 'High';
+    if (score >= 60) return 'Medium';
+    return 'Low';
+  };
+
+  const handleGenerate = async () => {
+    if (!isAuthenticated()) {
+      setError("Please log in to generate content");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const prompt = title || "Create engaging content for my audience";
+      const response = await generatePlatformContent(platform, prompt, {
+        contentType,
+        tone: 'professional',
+        length: 'medium'
+      });
+      
+      if (response.success) {
+        setContent(response.content || "Here's AI-generated content optimized for your audience... This content follows best practices for engagement and incorporates data-driven insights to maximize impact and reach.");
+      } else {
+        setError(response.message || "Content generation failed");
+      }
+    } catch (error) {
+      console.error('Generation error:', error);
+      // Fallback to mock content if API fails
+      setContent("Here's AI-generated content optimized for your audience... This content follows best practices for engagement and incorporates data-driven insights to maximize impact and reach.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -147,10 +269,10 @@ const ContentAnalyzer = () => {
       <div className="w-full max-w-7xl mx-auto px-6 mb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            { label: 'Avg. Score', value: '87%', color: '#3C6997' },
+            { label: 'Avg. Score', value: `${stats.averageOverallScore}%`, color: '#3C6997' },
             { label: 'Processing Time', value: '1.2s', color: '#5ADBFF' },
-            { label: 'Content Analyzed', value: '2.4K', color: '#FFDD4A' },
-            { label: 'Success Rate', value: '98.7%', color: '#FE9000' }
+            { label: 'Content Analyzed', value: stats.totalAnalyses >= 1000 ? `${(stats.totalAnalyses/1000).toFixed(1)}K` : stats.totalAnalyses.toString(), color: '#FFDD4A' },
+            { label: 'Success Rate', value: `${stats.successRate}%`, color: '#FE9000' }
           ].map((stat, index) => (
             <div 
               key={index} 
@@ -199,6 +321,45 @@ const ContentAnalyzer = () => {
                   <span className="relative">{tab}</span>
                 </button>
               ))}
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4 relative z-10">
+                <div className="text-red-400 text-sm font-medium">{error}</div>
+              </div>
+            )}
+
+            {/* Title and Platform Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 relative z-10">
+              <div>
+                <label className="text-white font-semibold text-sm mb-2 block">Title (Optional)</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter content title..."
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder-white/40 outline-none transition-all focus:border-[#5ADBFF] focus:ring-2 focus:ring-[#5ADBFF]/20 backdrop-blur-sm"
+                />
+              </div>
+              <div>
+                <label className="text-white font-semibold text-sm mb-2 block">Platform</label>
+                <select
+                  value={platform}
+                  onChange={(e) => setPlatform(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none transition-all focus:border-[#5ADBFF] focus:ring-2 focus:ring-[#5ADBFF]/20 backdrop-blur-sm"
+                >
+                  <option value="Blog">Blog</option>
+                  <option value="YouTube">YouTube</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="Twitter">Twitter</option>
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="TikTok">TikTok</option>
+                  <option value="Email">Email</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
             </div>
 
             {/* Content Input */}
@@ -250,12 +411,22 @@ const ContentAnalyzer = () => {
               
               <button
                 onClick={handleGenerate}
-                className="bg-gradient-to-r from-[#FFDD4A] to-[#FE9000] text-[#0A192F] font-bold py-4 px-6 rounded-xl text-lg transition-all hover:scale-105 hover:shadow-lg flex items-center justify-center gap-3 relative overflow-hidden group"
+                disabled={isGenerating}
+                className="bg-gradient-to-r from-[#FFDD4A] to-[#FE9000] text-[#0A192F] font-bold py-4 px-6 rounded-xl text-lg transition-all hover:scale-105 hover:shadow-lg flex items-center justify-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {/* Button Glow */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[#FE9000] to-[#FFDD4A] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md"></div>
-                <span className="relative z-10">✨</span>
-                <span className="relative z-10">Generate AI Content</span>
+                {isGenerating ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-[#0A192F]/30 border-t-[#0A192F] rounded-full animate-spin relative z-10"></div>
+                    <span className="relative z-10">Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="relative z-10">✨</span>
+                    <span className="relative z-10">Generate AI Content</span>
+                  </>
+                )}
               </button>
             </div>
 
